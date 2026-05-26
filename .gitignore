@@ -1,0 +1,24 @@
+# Raw and processed MRI data
+subjects/
+raw_data/
+derivatives/
+structural_connectomes/
+
+# Environments
+environment/
+.venv/
+env/
+
+# Neuroimaging outputs
+*.mif
+*.nii
+*.nii.gz
+*.tck
+*.trk
+*.mgz
+
+# Logs
+logs/
+
+# macOS
+.DS_Store
