@@ -5,7 +5,7 @@ derivatives/
 structural_connectomes/
 
 # Environments
-environment/
+
 .venv/
 env/
 
@@ -22,3 +22,6 @@ logs/
 
 # macOS
 .DS_Store
+
+.vscode/
+images/
