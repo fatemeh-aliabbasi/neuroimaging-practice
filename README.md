@@ -1,8 +1,8 @@
 # DWI_Project
 
 ## Folder Structure
-
-```DWI_Project/
+```
+DWI_Project/
 ├── environment/
 ├── raw_data/
 ├── subjects/
