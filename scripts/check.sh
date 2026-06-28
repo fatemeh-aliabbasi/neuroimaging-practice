@@ -90,7 +90,7 @@ cd "$SUBJDER"
 #mrview wmfod_norm.mif 
 
 #s13 Fibre bundle segmentation ( as an example the paper uses node 23 and node 72 which are correspond to left and right precentral gyrus )
-connectome2tck tracks_10m.tck dk_assignments.txt \
-transcallosal_m1.tck -nodes 23,72 -exclusive -files single
-mrview T1w.mif -tractography.load transcallosal_m1.tck
+#connectome2tck tracks_10m.tck dk_assignments.txt \
+#transcallosal_m1.tck -nodes 23,72 -exclusive -files single
+#mrview T1w.mif -tractography.load transcallosal_m1.tck
 
