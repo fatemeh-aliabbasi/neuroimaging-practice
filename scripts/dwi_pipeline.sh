@@ -19,18 +19,19 @@
 # STEP 2 — Convert DICOMs to .mif format and filesystem path to location where DICOM data are stored
 # =========================================================
 # Subject ID for FreeSurfers
-SUBJECTID="sub_03"
+SUBJECTID="sub_07"
 # Filesystem path to location where DICOM data are stored
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DICOMDIR="$PROJECT_DIR/subjects/$SUBJECTID/subject/dicoms"
 DERIVATIVEDIR="$PROJECT_DIR/derivative"
 
 SUBJDER="$DERIVATIVEDIR/$SUBJECTID"
-
+mkdir -p "$SUBJDER"
+cd "${SUBJDER}"
 # Convert DICOMs to MRtrix .mif format
-mrconvert ${DICOMDIR}/DWI_MSMT_102_AP/ ${SUBJDER}/dwi.mif
-mrconvert ${DICOMDIR}/DWI_b0_PA/ ${SUBJDER}/b0_pa.mif
-mrconvert ${DICOMDIR}/T1w/ ${SUBJDER}/T1w.mif
+mrconvert ${DICOMDIR}/DWI_MSMT_102_AP/ dwi.mif
+mrconvert ${DICOMDIR}/DWI_b0_PA/ b0_pa.mif
+mrconvert ${DICOMDIR}/T1w/ T1w.mif
 
 #To make sure that FreeSurfer is installed and configured correctly
 echo ${SUBJECTS_DIR}
