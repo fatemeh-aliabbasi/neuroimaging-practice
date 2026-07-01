@@ -1,7 +1,7 @@
 # Raw and processed MRI data
 subjects/
 raw_data/
-derivatives/
+derivative/
 structural_connectomes/
 
 # Environments
