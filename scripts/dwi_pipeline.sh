@@ -88,23 +88,34 @@ dwi_den_unr_preproc_bc.mif -bias bias.mif
 # Extract b=0 volumes and calculate the mean.
 # Export to NIFTI format for compatibility with FSL.
 dwiextract dwi_den_unr_preproc_bc.mif - -bzero | \
-mrmath - mean mean_b0_preproc.nii -axis 3
+mrmath - mean mean_b0_preproc.nii.gz -axis 3 # I changed the file extension her to .gz
+mrconvert mean_b0_preproc.nii.gz mean_b0_preproc.nii -force # I also create a just .nii
 # Correct for bias field in the T1w image:
-N4BiasFieldCorrection -d 3 -i T1w.nii -s 2 -o T1w_bc.nii
+N4BiasFieldCorrection -d 3 -i T1w.nii -s 2 -o T1w_bc.nii.gz # I changed again the extension in .gz
+
+# here a standardize orientation and match voxel grid (NEW)
+fslreorient2std mean_b0_preproc.nii mean_b0_std.nii.gz
+fslreorient2std T1w_bc.nii T1w_bc_std.nii.gz
+mrgrid mean_b0_std.nii.gz regrid \
+  -template T1w_bc_std.nii.gz \
+  mean_b0_match.nii.gz -force
+
 # Perform linear registration with 6 degrees of freedom:
-flirt -in mean_b0_preproc.nii \
--ref T1w_bc.nii -dof 6 -cost normmi \
--omat diff2struct_fsl.mat
+flirt -in mean_b0_match.nii.gz \ 
+-ref T1w_bc_std.nii.gz -dof 6 -cost normmi \
+-omat diff2struct.mat # I have changed file extensions and did some renaming to use the new files
 # Convert the resulting linear transformation matrix
 # from FSL to MRtrix format:
-transformconvert diff2struct_fsl.mat \
-mean_b0_preproc.nii T1w_bc.nii \
-flirt_import diff2struct_mrtrix.txt
+transformconvert diff2struct.mat \
+  mean_b0_match.nii.gz T1w_bc_std.nii.gz \
+  flirt_import diff2struct_mrtrix.txt -force #also some renaming here to use the new files
 # Apply linear transformation to header of
 # diffusion-weighted image:
 mrtransform dwi_den_unr_preproc_bc.mif \
--linear diff2struct_mrtrix.txt \
-dwi_den_unr_preproc_bc_coreg.mif
+  -linear diff2struct_mrtrix.txt \
+  -stride 0 \
+  dwi_den_unr_preproc_bc_coreg.mif -force
+
 
 # =========================================================
 #step 10 — Brain mask estimation
