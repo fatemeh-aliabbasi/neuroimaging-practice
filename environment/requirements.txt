@@ -1,14 +1,11 @@
 software packages and versions required for running the dwi_pipeline.sh script and connectome_plotting.ipynb notebook:
 
 For running dwi_pipeline.sh:
-MRtrix3, version 3.0.3 or later (https://MRtrix3.readthedocs.io/en/latest/installation/
-before_install.html)
-• FSL, version 5.0.10 or later (https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation)
-• ANTs, version 2.1 or later (http://stnava.github.io/ANTs/)
-• FreeSurfer, version 6.0 or later (https://surfer.nmr.mgh.harvard.edu/fswiki/
-DownloadAndInstall)
-169
-• ACPCdetect, version 1.0 or later (https://www.nitrc.org/frs/?group_id=90)
+MRtrix3, version 3.0.4 
+• FSL, version 6.0.7.7 
+• ANTs, version 2.5.3 
+• FreeSurfer, version 7.4.1
+• ACPCdetect, version 2.2 
 
 
 For running connectome_plotting.ipynb:
