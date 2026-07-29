@@ -44,7 +44,7 @@ mrconvert T1w.mif T1w.nii
 # =========================================================
 #step 4 — Create the new FreeSurfer subject
 # =========================================================
-recon-all -s ${SUBJECTID} -i T1w.nii -all -openmp 4
+#recon-all -s ${SUBJECTID} -i T1w.nii -all -openmp 4
 
 # change directory
 cd ${SUBJDER}
@@ -75,7 +75,7 @@ mrcat - b0_pa_unr.mif -axis 3 b0s_paired.mif
 dwifslpreproc dwi_den_unr.mif \
 dwi_den_unr_preproc.mif -pe_dir AP \
 -rpe_pair -se_epi b0s_paired.mif \
--eddy_options " --repol"
+-eddy_options " --repol --slm=linear"
 
 # =========================================================
 #step 8 — Bias field correction
@@ -89,10 +89,10 @@ dwi_den_unr_preproc_bc.mif -bias bias.mif
 # Extract b=0 volumes and calculate the mean.
 # Export to NIFTI format for compatibility with FSL.
 dwiextract dwi_den_unr_preproc_bc.mif - -bzero | \
-mrmath - mean mean_b0_preproc.nii.gz -axis 3 # I changed the file extension her to .gz
-mrconvert mean_b0_preproc.nii.gz mean_b0_preproc.nii -force # I also create a just .nii
+mrmath - mean mean_b0_preproc.nii -axis 3 # I changed the file extension her to .gz
 # Correct for bias field in the T1w image:
-N4BiasFieldCorrection -d 3 -i T1w.nii -s 2 -o T1w_bc.nii.gz # I changed again the extension in .gz
+
+ N4BiasFieldCorrection -d 3 -i T1w.nii -s 2 -o T1w_bc.nii.gz # I changed again the extension in .gz
 
 # here a standardize orientation and match voxel grid (NEW)
 fslreorient2std mean_b0_preproc.nii mean_b0_std.nii.gz
@@ -102,14 +102,14 @@ mrgrid mean_b0_std.nii.gz regrid \
   mean_b0_match.nii.gz -force
 
 # Perform linear registration with 6 degrees of freedom:
-flirt -in mean_b0_match.nii.gz \ 
+flirt -in mean_b0_match.nii.gz \
 -ref T1w_bc_std.nii.gz -dof 6 -cost normmi \
 -omat diff2struct.mat # I have changed file extensions and did some renaming to use the new files
 # Convert the resulting linear transformation matrix
 # from FSL to MRtrix format:
 transformconvert diff2struct.mat \
-  mean_b0_match.nii.gz T1w_bc_std.nii.gz \
-  flirt_import diff2struct_mrtrix.txt -force #also some renaming here to use the new files
+ mean_b0_match.nii.gz T1w_bc_std.nii.gz \
+ flirt_import diff2struct_mrtrix.txt -force #also some renaming here to use the new files
 # Apply linear transformation to header of
 # diffusion-weighted image:
 mrtransform dwi_den_unr_preproc_bc.mif \
