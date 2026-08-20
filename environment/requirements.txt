@@ -1,14 +1,12 @@
 software packages and versions required for running the dwi_pipeline.sh script and connectome_plotting.ipynb notebook:
 
-For running dwi_pipeline.sh:
-MRtrix3, version 3.0.4 
-• FSL, version 6.0.7.7 
-• ANTs, version 2.5.3 
+For running dwi_pipeline.sh and dwi_pipeline_volume_gradienttable_adjustment.sh:
+• MRtrix3, version 3.0.8
+• FSL, version 6.0.7.22
+• ANTs, version 2.6.5
 • FreeSurfer, version 7.4.1
 • ACPCdetect, version 2.2 
 
 
 For running connectome_plotting.ipynb:
-numpy
-pandas
-matplotlib
+• Python version 3.12.13 
