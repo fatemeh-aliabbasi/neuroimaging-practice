@@ -5,8 +5,8 @@ For running dwi_pipeline.sh and dwi_pipeline_volume_gradienttable_adjustment.sh:
 • FSL, version 6.0.7.22
 • ANTs, version 2.6.5
 • FreeSurfer, version 7.4.1
-• ACPCdetect, version 2.2 
+• ACPCdetect, version 2.0
 
 
 For running connectome_plotting.ipynb:
-• Python version 3.12.13 
+• Python version 3.11.16

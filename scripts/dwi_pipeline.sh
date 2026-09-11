@@ -3,6 +3,27 @@
 # Based on Tahedl et al. (2025) Nature Protocols
 # =========================================================
 
+# =========================================================
+# Load environment: FreeSurfer 7.4.1, ANTs 2.6.5, MRtrix3 3.0.8,
+# FSL 6.0.7.22 (installed under ~/softwares/, overriding Hyades'
+# older /usr/local/ versions). Must be sourced first so this
+# script is self-contained when run interactively or submitted
+# as a cluster job.
+# =========================================================
+source ~/softwares/setup_env.sh
+
+# =========================================================
+# Logging: capture everything to a timestamped log file,
+# and generate a short warnings/errors summary at the end.
+# =========================================================
+SUBJECTID="0007"
+RUNTIME=$(date +%Y%m%d_%H%M%S)
+LOGDIR="/projects/MINDLAB2025_MEG-thermoSense-intensity/result/MRI/DWI_Project/logs"
+mkdir -p "$LOGDIR"
+LOGFILE="$LOGDIR/${SUBJECTID}_${RUNTIME}.log"
+exec > >(tee -a "$LOGFILE") 2>&1
+echo "Log started: $(date)"
+
 # Prepare input DICOM data
 # =========================================================
 # STEP 1 — Prepare folders structures
@@ -19,10 +40,9 @@
 # STEP 2 — Convert DICOMs to .mif format and filesystem path to location where DICOM data are stored
 # =========================================================
 # Subject ID for FreeSurfers
-SUBJECTID="sub_07"
 # Filesystem path to location where DICOM data are stored
-PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-DICOMDIR="$PROJECT_DIR/subjects/$SUBJECTID/subject/dicoms"
+PROJECT_DIR="/projects/MINDLAB2025_MEG-thermoSense-intensity/result/MRI/DWI_Project"
+DICOMDIR="$PROJECT_DIR/subjects/$SUBJECTID/dicoms"
 DERIVATIVEDIR="$PROJECT_DIR/derivative"
 
 SUBJDER="$DERIVATIVEDIR/$SUBJECTID"
@@ -44,7 +64,7 @@ mrconvert T1w.mif T1w.nii
 # =========================================================
 #step 4 — Create the new FreeSurfer subject
 # =========================================================
-#recon-all -s ${SUBJECTID} -i T1w.nii -all -openmp 4
+recon-all -s ${SUBJECTID} -i T1w.nii -all -openmp 4
 
 # change directory
 cd ${SUBJDER}
@@ -182,7 +202,7 @@ MRTRIXDIR=$(dirname $(dirname $(which labelconvert)))
 # associated conversion table in MRtrix installation folder:
 labelconvert ${SUBJECTS_DIR}/${SUBJECTID}/mri/aparc+aseg.mgz \
 ${FREESURFER_HOME}/FreeSurferColorLUT.txt \
-/usr/local/mrtrix3/share/mrtrix3/labelconvert/fs_default.txt \
+${MRTRIXDIR}/share/mrtrix3/labelconvert/fs_default.txt \
 DK_parcels.mif
 
 # =========================================================
@@ -192,3 +212,15 @@ tck2connectome -tck_weights_in sift2_weights.txt \
 -symmetric -zero_diagonal \
 -out_assignments dk_assignments.txt \
 tracks_10m.tck DK_parcels.mif dk.csv
+
+# =========================================================
+# Generate a short summary of any warnings/errors
+# =========================================================
+SUMMARYFILE="$LOGDIR/${SUBJECTID}_${RUNTIME}_summary.txt"
+grep -n -iE "\[ERROR\]|\[WARNING\]" "$LOGFILE" > "$SUMMARYFILE"
+echo "Pipeline finished: $(date)"
+if [ -s "$SUMMARYFILE" ]; then
+    echo "WARNINGS/ERRORS found - see: $SUMMARYFILE"
+else
+    echo "No warnings or errors detected."
+fi

@@ -2,8 +2,19 @@
 # this script is used to check the quality of the images
 # to check the visualisation steps in a manual terminal navigate into the qc folder of the subject and define SUBJDER (once per terminal session). for example: cd /Users/au813606/Documents/DWI_Project/qc/sub_07
 #SUBJDER="/Users/au813606/Documents/DWI_Project/derivative/sub_07" then you can paste below visualisation commands.
-SUBJECTID="sub_07"
-PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+source ~/softwares/setup_env.sh
+SUBJECTID="0009"
+# =========================================================
+# Logging: capture everything to a timestamped log file,
+# and generate a short warnings/errors summary at the end.
+# =========================================================
+RUNTIME=$(date +%Y%m%d_%H%M%S)
+LOGDIR="/projects/MINDLAB2025_MEG-thermoSense-intensity/result/MRI/DWI_Project/logs"
+mkdir -p "$LOGDIR"
+LOGFILE="$LOGDIR/check_${SUBJECTID}_${RUNTIME}.log"
+exec > >(tee -a "$LOGFILE") 2>&1
+echo "Log started: $(date)"
+PROJECT_DIR="/projects/MINDLAB2025_MEG-thermoSense-intensity/result/MRI/DWI_Project"
 SUBJDER="$PROJECT_DIR/derivative/$SUBJECTID"
 QCDIR="$PROJECT_DIR/qc/$SUBJECTID"
 mkdir -p "$QCDIR"
@@ -16,8 +27,7 @@ mrcalc "$QCDIR"/mean_b0.mif "$QCDIR"/std_b0.mif -div - | \
 mrfilter - median "$QCDIR"/SNR.mif
 
 #visualisation
-#mrview SNR.mif -colourmap 2 -intensity_range 0,40 \
- #-noannotations -mode 2
+#mrview "$QCDIR"/SNR.mif -colourmap 2 -intensity_range 0,40 -noannotations -mode 2
 
  #s2 Visual inspection of denoising. this file is inside the derivative because it has been made in the actual pipeline
  #mrview "$SUBJDER"/noise.mif
@@ -37,9 +47,9 @@ mrcalc bias.mif -log "$QCDIR"/bias_log.mif
   #-overlay.colourmap 1 -overlay.opacity 0.6
  
 # After co-registration
-mrview "$SUBJDER"/T1w.mif -colourmap 2 \
-  -overlay.load "$SUBJDER"/dwi_den_unr_preproc_bc_coreg.mif \
-  -overlay.colourmap 1 -overlay.opacity 0.6
+#mrview "$SUBJDER"/T1w.mif -colourmap 2 \
+  #-overlay.load "$SUBJDER"/dwi_den_unr_preproc_bc_coreg.mif \
+  #-overlay.colourmap 1 -overlay.opacity 0.6
 
  #s5 Visual inspection of brain mask estimation
  #mrview "$SUBJDER"/dwi_den_unr_preproc_bc_coreg.mif \
@@ -111,3 +121,28 @@ connectome2tck \
  -nodes 23,72 -exclusive -files single
 #mrview "$SUBJDER"/T1w.mif \
   #tractography.load transcallosal_m1.tck
+
+  # =========================================================
+# Symlink derivative files needed for visualization into
+# QCDIR, so mrview commands here can use bare filenames
+# without navigating between folders. Safe: these are
+# pipeline-derived outputs, not raw data, and are file-level
+# (not directory) symlinks.
+# =========================================================
+for f in noise.mif dwi_den_unr_preproc.mif T1w.mif dwi_den_unr_preproc_bc.mif \
+         dwi_den_unr_preproc_bc_coreg.mif dwi_mask.mif voxels.mif wm.txt gm.txt \
+         csf.txt wmfod.mif 5tt.mif T1w_bc.nii.gz wmfod_norm.mif; do
+    ln -sf "$SUBJDER"/"$f" "$QCDIR"/"$f"
+done
+
+  # =========================================================
+# Generate a short summary of any warnings/errors
+# =========================================================
+SUMMARYFILE="$LOGDIR/check_${SUBJECTID}_${RUNTIME}_summary.txt"
+grep -n -iE "\[ERROR\]|\[WARNING\]" "$LOGFILE" > "$SUMMARYFILE"
+echo "Check finished: $(date)"
+if [ -s "$SUMMARYFILE" ]; then
+    echo "WARNINGS/ERRORS found - see: $SUMMARYFILE"
+else
+    echo "No warnings or errors detected."
+fi

@@ -3,11 +3,17 @@ subjects/
 raw_data/
 derivative/
 structural_connectomes/
+mrtrix_tmp
+SC_matrix
+qc/
 
 # Environments
 
 .venv/
 env/
+py-wrapper_7869208.qsub
+py-wrapper_7869454.qsub
+py-wrapper_*.qsub
 
 # Neuroimaging outputs
 *.mif
@@ -22,6 +28,7 @@ logs/
 
 # macOS
 .DS_Store
-
+._.DS_Store
 .vscode/
 images/
+._*
